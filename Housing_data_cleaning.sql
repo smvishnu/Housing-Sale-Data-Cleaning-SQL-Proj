@@ -1,15 +1,11 @@
 /*
-This project is aimed to clean the Housing Data step by step after importing 
-it into MSSQL database table from Excel
+This project is aimed to clean the Housing Data step by step after importing it into MSSQL database table from Excel
 */
 
 Select *
 From PortfolioProject.dbo.HousingData
 
-/* #1	- Standardize Date Format - The datatype of 'SaleDate' column when imported is 'Datetime' and the 
-	column values includes timestamps as yyyy-mm-dd 00:00:00. To make the date value readable and usable, a new column 'SaleDateConverted'
-	is created with 'Date' datatype and 'SaleDate' values were converted to 'Date' type and inserted into the new column. Now the date values are
-	standardized to yyyy-mm-dd format.
+/* #1	- Standardize Date Format - The datatype of 'SaleDate' column when imported is 'Datetime' and the column values includes timestamps as yyyy-mm-dd 00:00:00. To make the date value readable and usable, a new column 'SaleDateConverted' is created with 'Date' datatype and 'SaleDate' values were converted to 'Date' type and inserted into the new column. Now the date values are standardized to yyyy-mm-dd format.
 */
 
 ALTER TABLE PortfolioProject.dbo.HousingData
@@ -18,9 +14,7 @@ ADD SaleDateConverted Date;
 UPDATE PortfolioProject.dbo.HousingData
 SET SaleDateConverted = CONVERT(Date, SaleDate)
 
-/* #2 - Its noted for few properties there were two records with identical 'Parcel ID' but one with a 
-	NULL value for 'PropertyAddress'. This query populates the property address for a null value record
-	from the other record that has a value in it.
+/* #2 - Its noted for few properties there were two records with identical 'Parcel ID' but one with a NULL value for PropertyAddress'. This query populates the property address for a null value record from the other record that has a value in it.
 */
 
 UPDATE a
@@ -31,9 +25,7 @@ JOIN PortfolioProject.dbo.HousingData b
 	AND a.[UniqueID ] <> b.[UniqueID ]
 WHERE a.PropertyAddress IS NULL
 
-/* #3 - Property address stored in one column as '<Property No> <Street Addr>, <County>' is split 
-	into 3 columns as 'Address', 'City' and 'State'. The address is now more readable and easy to handle 
-	it in SQL queries.
+/* #3 - Property address stored in one column as '<Property No> <Street Addr>, <County>' is split into 3 columns as 'Address', 'City' and 'State'. The address is now more readable and easy to handle it in SQL queries.
 */
 
 Select PropertyAddress, SUBSTRING(PropertyAddress,1, CHARINDEX(',',PropertyAddress)-1),
@@ -78,9 +70,9 @@ ADD OwnerSplitState Nvarchar(255)
 UPDATE HousingData
 SET OwnerSplitState = PARSENAME(REPLACE(OwnerAddress,',','.'),1)
 
-/* #4 -	The column "Sold as Vacant" stores a boolean value 'Y' for Yes and 'N' for No. Below query 
-	updates the value 'Y' to 'Yes' AND 'N' to 'No'. This makes the values more readable.
+/* #4 -	The column "Sold as Vacant" stores a boolean value 'Y' for Yes and 'N' for No. Below query updates the value 'Y' to 'Yes' AND 'N' to 'No'. This makes the values more readable.
 */
+
 SELECT DISTINCT(SoldAsVacant), COUNT(SoldAsVacant)
 FROM HousingData
 GROUP BY SoldAsVacant
@@ -102,8 +94,7 @@ SET SoldAsVacant =
 		ELSE SoldAsVacant
 	END
 
-/* #5 -  There were duplicate records identified for one sale of a property. Below query is built to remove 
-	the duplicates
+/* #5 -  There were duplicate records identified for one sale of a property. Below query is built to remove the duplicates
 */
 
 WITH RowNumCTE AS (
@@ -121,7 +112,7 @@ From PortfolioProject.dbo.HousingData
 DELETE FROM RowNumCTE
 WHERE row_num > 1
 
-/* #6 - Four columns were identified of not use so deleting those columns that clears the unwanted data
+/* #6 - Four columns were identified of no use so dropping those columns to clear the unwanted data
 */
 
 ALTER TABLE PortfolioProject.dbo.HousingData
