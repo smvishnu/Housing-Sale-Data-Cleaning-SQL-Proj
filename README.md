@@ -2,6 +2,8 @@ This project is aimed to clean the Housing sale data step by step after importin
 
 ## Process
 
+![alt text](https://github.com/smvishnu/Housing-Sale-Data-Cleaning-SQL-Proj/blob/main/Clean_Housing_Data.png "Housing Sale Data Cleaning")
+
 1. Standardize Date Format - The datatype of 'SaleDate' column when imported is 'Datetime' and the column values includes timestamps as yyyy-mm-dd 00:00:00. To make the date value readable and usable, a new column 'SaleDateConverted' is created with 'Date' as datatype and 'SaleDate' values were converted to 'Date' type and inserted into the new column. Now the date values are standardized to yyyy-mm-dd format.
 2. Its noted for few housing properties there were two records with identical 'Sale ID' but one with a NULL value for PropertyAddress'. This query populates the property address for a null value record from the other record that has a value in it.
 3. Property address stored in one column as '<Property No> <Street Addr>, <County>' is split into 3 columns as 'Address', 'City' and 'State'. The address is now more readable and easy to handle it in SQL queries.
